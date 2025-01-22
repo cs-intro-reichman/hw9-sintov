@@ -54,8 +54,11 @@ public class LinkedList {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		//// Replace the following statement with your code
-		return null;
+		Node current = this.getFirst();
+		for (int i = 1; i < index; i++){
+			current = current.next;
+		}
+		return current;
 	}
 	
 	/**
@@ -78,7 +81,24 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
-		//// Write your code here
+		Node newNode = new Node(block);
+		Node saveNode = null;
+		if (index == 0) {
+			saveNode = this.first;
+			this.first = newNode;
+			this.first.next = saveNode;
+		}else{
+			if (index == size){
+				this.last.next = newNode;
+				this.last = this.last.next;
+			}else{
+				saveNode = this.getNode(index-1);
+				Node nextNode = this.getNode(index);
+				newNode.next = nextNode;
+				saveNode.next = newNode;
+			}
+		}
+		this.size++;
 	}
 
 	/**
@@ -89,7 +109,10 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addLast(MemoryBlock block) {
-		//// Write your code here
+		Node newNode = new Node(block);
+		this.last.next = newNode;
+		this.last = this.last.next;
+		this.size++;
 	}
 	
 	/**
@@ -100,7 +123,12 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addFirst(MemoryBlock block) {
-		//// Write your code here
+		Node newNode = new Node(block);
+		Node saveNode = null;
+		saveNode = this.first;
+		this.first = newNode;
+		this.first.next = saveNode;
+		this.size++;
 	}
 
 	/**
@@ -113,8 +141,15 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-		//// Replace the following statement with your code
-		return null;
+		if (index < 0 || index > size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		Node current = this.getFirst();
+		for (int i = 1; i < index; i++){
+			current = current.next;
+		}
+		return current.block;
 	}	
 
 	/**
@@ -125,7 +160,11 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		//// Replace the following statement with your code
+		for (int i=0; i<this.getSize(); i++){
+			if(this.getBlock(i) == block){
+				return i;
+			}
+		}
 		return -1;
 	}
 
@@ -136,7 +175,25 @@ public class LinkedList {
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
-		//// Write your code here
+		int nodeIndex = 0;
+		if(this.getNode(nodeIndex) == node){
+			Node newFirst = this.first.next;
+			this.first.next = null;
+			this.first = newFirst;
+		}else{
+		while(this.getNode(nodeIndex).next != node){
+			nodeIndex++;
+		}
+		if(this.getNode(nodeIndex).next == this.last){
+			this.getNode(nodeIndex).next = null;
+			this.last = this.getNode(nodeIndex);
+		}else{
+			Node toSave = this.getNode(nodeIndex).next.next;
+			this.getNode(nodeIndex).next.next = null;
+			this.getNode(nodeIndex).next = toSave;
+		}
+	}
+		this.size--;
 	}
 
 	/**
@@ -147,7 +204,30 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public void remove(int index) {
-		//// Write your code here
+		if (index < 0 || index >= size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		int nodeIndex = 0;
+		if(index == 0){
+			Node newFirst = this.first.next;
+			this.first.next = null;
+			this.first = newFirst;
+		}else{
+		while(this.getNode(nodeIndex).next != this.getNode(index)){
+			nodeIndex++;
+		}
+		if(this.getNode(nodeIndex).next == this.last){
+			this.getNode(nodeIndex).next = null;
+			this.last = this.getNode(nodeIndex);
+		}
+		else{
+			Node toSave = this.getNode(nodeIndex).next.next;
+			this.getNode(nodeIndex).next.next = null;
+			this.getNode(nodeIndex).next = toSave;
+		}
+	}
+		this.size--;
 	}
 
 	/**
@@ -158,7 +238,30 @@ public class LinkedList {
 	 *         if the given memory block is not in this list
 	 */
 	public void remove(MemoryBlock block) {
-		//// Write your code here
+		int nodeIndex = 0;
+		if(this.getBlock(0) == block){
+			Node newFirst = this.first.next;
+			this.first.next = null;
+			this.first = newFirst;
+		}else{
+			while(this.getNode(nodeIndex).next.block != block || nodeIndex < this.size-1){
+				nodeIndex++;
+			}
+			if (nodeIndex == this.size - 1) {
+				throw new IllegalArgumentException(
+					"index must be between 0 and size");
+			}
+			if(this.getNode(nodeIndex).next.block == this.last.block){
+				this.getNode(nodeIndex).next = null;
+				this.last = this.getNode(nodeIndex);
+			}else{
+				Node toSave = this.getNode(nodeIndex).next.next;
+				this.getNode(nodeIndex).next.next = null;
+				this.getNode(nodeIndex).next = toSave;
+			}
+		}
+		this.size --;
+		
 	}	
 
 	/**
