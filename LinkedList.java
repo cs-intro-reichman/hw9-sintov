@@ -54,8 +54,11 @@ public class LinkedList {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		Node current = this.getFirst();
+		Node current = this.first;
 		for (int i = 1; i < index; i++){
+			if(current == null){
+				return null;
+			}
 			current = current.next;
 		}
 		return current;
@@ -81,24 +84,26 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
-		Node newNode = new Node(block);
-		Node saveNode = null;
+		if (index < 0 || index > size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
 		if (index == 0) {
-			saveNode = this.first;
-			this.first = newNode;
-			this.first.next = saveNode;
+			addFirst(block);
 		}else{
 			if (index == size){
-				this.last.next = newNode;
-				this.last = this.last.next;
+				addLast(block);
 			}else{
-				saveNode = this.getNode(index-1);
-				Node nextNode = this.getNode(index);
-				newNode.next = nextNode;
+				Node newNode = new Node(block);
+				Node saveNode = this.first;
+				for(int i = 1; i < index; i++){
+					saveNode = saveNode.next;
+				}
+				newNode.next = saveNode.next;
 				saveNode.next = newNode;
+				this.size++;
 			}
 		}
-		this.size++;
 	}
 
 	/**
@@ -110,8 +115,14 @@ public class LinkedList {
 	 */
 	public void addLast(MemoryBlock block) {
 		Node newNode = new Node(block);
+		if (first == null){
+			first = newNode;
+			last = newNode;
+			this.first.next = this.last;
+		}else{
 		this.last.next = newNode;
-		this.last = this.last.next;
+		this.last = newNode;
+		}
 		this.size++;
 	}
 	
@@ -124,10 +135,17 @@ public class LinkedList {
 	 */
 	public void addFirst(MemoryBlock block) {
 		Node newNode = new Node(block);
-		Node saveNode = null;
-		saveNode = this.first;
-		this.first = newNode;
-		this.first.next = saveNode;
+		if(first == null){
+			this.first = newNode;
+			this.last = this.first;
+			first.next = last;
+		}else{
+			newNode.next = first;
+			first = newNode;
+		}
+		if(first.next == null){
+			this.first.next = this.last;
+		}
 		this.size++;
 	}
 
@@ -145,8 +163,8 @@ public class LinkedList {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		Node current = this.getFirst();
-		for (int i = 1; i < index; i++){
+		Node current = this.first;
+		for (int i = 0; i < index; i++){
 			current = current.next;
 		}
 		return current.block;
@@ -160,7 +178,7 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		for (int i=0; i<this.getSize(); i++){
+		for (int i=0; i<this.size; i++){
 			if(this.getBlock(i) == block){
 				return i;
 			}
