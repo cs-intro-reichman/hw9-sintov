@@ -57,9 +57,28 @@ public class MemorySpace {
 	 *        the length (in words) of the memory block that has to be allocated
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
-	public int malloc(int length) {		
-		//// Replace the following statement with your code
-		return -1;
+	public int malloc(int length) {	
+		Node currentNode = this.freeList.getFirst();
+		Node blocNode = null;
+		while (currentNode != null) {
+			if(currentNode.block.length >= length){
+				blocNode = currentNode;
+				break;
+			}
+			currentNode = currentNode.next;
+		}
+		if(blocNode != null){
+			MemoryBlock tempBlock = new MemoryBlock(blocNode.block.baseAddress, length);
+			allocatedList.addLast(tempBlock);
+			int add = blocNode.block.baseAddress;
+			blocNode.block.length -= length;
+			blocNode.block.baseAddress += length;
+			if(blocNode.block.length == 0){
+				freeList.remove(blocNode);
+			}
+			return add;
+		}
+				return -1;
 	}
 
 	/**
@@ -71,9 +90,22 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		if(freeList.getSize() == 1 && freeList.getFirst().block.baseAddress == 0 && freeList.getFirst().block.length == 100) {
+			throw new IllegalArgumentException("index must be between 0 and size");
+		}
+		Node tempNode = allocatedList.getNode(0);
+		Node searchNode = null;
+		while(tempNode != null) {
+			if(tempNode.block.baseAddress == address) {
+				searchNode = tempNode;
+				break;
+			}
+			tempNode = tempNode.next;
+		}
+		if(searchNode == null) return;
+		freeList.addLast(searchNode.block);
+		allocatedList.remove(searchNode.block);
 	}
-	
 	/**
 	 * A textual representation of the free list and the allocated list of this memory space, 
 	 * for debugging purposes.
@@ -88,7 +120,21 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		/// TODO: Implement defrag test
-		//// Write your code here
+		if (freeList.getSize() <= 1) {
+			return;
+		}
+		freeList.sort();
+		Node currentNode = freeList.getFirst();
+		while (currentNode != null && currentNode.next != null) {
+			MemoryBlock currentBlock = currentNode.block;
+			MemoryBlock nextBlock = currentNode.next.block;
+	
+			if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
+				currentBlock.length += nextBlock.length;
+				freeList.remove(currentNode.next);
+			} else {
+				currentNode = currentNode.next;
+			}
+		}
 	}
 }

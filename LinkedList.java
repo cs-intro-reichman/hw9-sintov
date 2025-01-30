@@ -330,4 +330,17 @@ public class LinkedList {
 		}
     	return result;
 	}
+
+	public void sort() {
+		for (int i = 0; i < size - 1; i++) {
+			for (int j = 0; j < size - i - 1; j++) {
+				Node currentNode = getNode(j);
+				Node next = currentNode.next;
+				if (currentNode.block.baseAddress > next.block.baseAddress) {
+					MemoryBlock temp = currentNode.block;
+					currentNode.block = next.block;
+					next.block = temp;
+				}
+			}
+		}
 }
