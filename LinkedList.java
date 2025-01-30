@@ -177,10 +177,12 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
+		Node newNode = this.first;
 		for (int i=0; i<this.size; i++){
-			if(this.getBlock(i) == block){
+			if(newNode.block == block){
 				return i;
 			}
+			newNode = newNode.next;
 		}
 		return -1;
 	}
@@ -192,26 +194,48 @@ public class LinkedList {
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
-		int nodeIndex = 0;
-		if(this.getNode(nodeIndex) == node){
-			Node newFirst = this.first.next;
-			this.first.next = null;
-			this.first = newFirst;
-		}else{
-		while(this.getNode(nodeIndex).next != node){
-			nodeIndex++;
+		if(node == null){
+			throw new NullPointerException();
 		}
-		if(this.getNode(nodeIndex).next == this.last){
-			this.getNode(nodeIndex).next = null;
-			this.last = this.getNode(nodeIndex);
-		}else{
-			Node toSave = this.getNode(nodeIndex).next.next;
-			this.getNode(nodeIndex).next.next = null;
-			this.getNode(nodeIndex).next = toSave;
-		}
+		if (this.first != null)
+		{ 
+			if (this.size == 1 && node == this.first){
+				this.first = null;
+				this.last = null;
+				this.size = 0;
+			}else{
+				if(node == first){
+					this.first = this.first.next;
+					this.size --;
+					if(this.size ==1){
+						this.last = this.first;
+					}
+				}else{
+					Node currentNode = this.first;
+					while (currentNode.next != null) {
+						if(currentNode.next == node && node == last) {
+							currentNode.next = null;
+							this.size --;
+							last = currentNode;
+							if (this.size == 1) {
+								last = first;
+							}
+							return;
+						}
+						if (currentNode.next == node) {
+							currentNode.next = currentNode.next.next;
+							this.size --;
+							if(this.size == 1) {
+								this.last = this.first;
+							}
+							return;
+						}
+						currentNode = currentNode.next;
+					}
+				}
+			}
 	}
-		this.size--;
-	}
+}
 
 	/**
 	 * Removes from this list the node which is located at the given index.
@@ -221,30 +245,19 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public void remove(int index) {
-		if (index < 0 || index >= size) {
+		if (index < 0 || index > size) {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		int nodeIndex = 0;
-		if(index == 0){
-			Node newFirst = this.first.next;
-			this.first.next = null;
-			this.first = newFirst;
-		}else{
-		while(this.getNode(nodeIndex).next != this.getNode(index)){
-			nodeIndex++;
+		if (this.size != 0){
+			if(size == 1){
+				this.first = null;
+				this.last = null;
+				this.size = 0;
+			}else{
+				remove(getBlock(index));
+			}
 		}
-		if(this.getNode(nodeIndex).next == this.last){
-			this.getNode(nodeIndex).next = null;
-			this.last = this.getNode(nodeIndex);
-		}
-		else{
-			Node toSave = this.getNode(nodeIndex).next.next;
-			this.getNode(nodeIndex).next.next = null;
-			this.getNode(nodeIndex).next = toSave;
-		}
-	}
-		this.size--;
 	}
 
 	/**
@@ -255,32 +268,49 @@ public class LinkedList {
 	 *         if the given memory block is not in this list
 	 */
 	public void remove(MemoryBlock block) {
-		int nodeIndex = 0;
-		if(this.getBlock(0) == block){
-			Node newFirst = this.first.next;
-			this.first.next = null;
-			this.first = newFirst;
-		}else{
-			while(this.getNode(nodeIndex).next.block != block || nodeIndex < this.size-1){
-				nodeIndex++;
-			}
-			if (nodeIndex == this.size - 1) {
-				throw new IllegalArgumentException(
-					"index must be between 0 and size");
-			}
-			if(this.getNode(nodeIndex).next.block == this.last.block){
-				this.getNode(nodeIndex).next = null;
-				this.last = this.getNode(nodeIndex);
-			}else{
-				Node toSave = this.getNode(nodeIndex).next.next;
-				this.getNode(nodeIndex).next.next = null;
-				this.getNode(nodeIndex).next = toSave;
-			}
+		if(block == null || indexOf(block) == -1) {
+			throw new IllegalArgumentException("index must be between 0 and size");
 		}
-		this.size --;
+		Node current = this.first;
+		if(this.first == null){
+			return;
+		}
+		if(this.size == 1 && block.equals(first.block)) {
+			this.first = null;
+			this.last = null;
+			this.size = 0;
+			return;
+		}
+		if (block == this.first.block) {
+			this.first = this.first.next;
+			this.size --;
+			if (this.size == 1) {
+				this.last = this.first;
+			}
+			return;
+		}
+		for(int i = 0 ; i < size ; i ++) {
+			if(current.next.block == block && block == this.last.block) {
+				current.next = null;
+				this.size --;
+				this.last = current;
+				if (this.size == 1) {
+					this.last = this.first;
+				}
+				return;
+			}
+			if (current.next.block == block) {
+				current.next = current.next.next;
+				this.size --;
+				if(this.size == 1) {
+					this.last = this.first;
+				}
+				return;
+			}
+			current = current.next;
+		}
+	}
 		
-	}	
-
 	/**
 	 * Returns an iterator over this list, starting with the first element.
 	 */
@@ -292,7 +322,12 @@ public class LinkedList {
 	 * A textual representation of this list, for debugging.
 	 */
 	public String toString() {
-		//// Replace the following statement with your code
-		return "";
+		String result = "";
+    	Node current = first;
+    	for(int i = 0 ; i < size ; i ++) {
+        	result += current.block.toString() + " "; 
+        	current = current.next; 
+		}
+    	return result;
 	}
 }
